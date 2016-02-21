@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <title>RpiRover</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script>
+	  var ws;
+      $(function(){
+          $("#videocapture").attr("src", "http://"+location.hostname+":8081/")
+		  startWebsocket();
+		  $(".cmd").mousedown(function(e) {
+			  ws.send($(this).attr('data-cmd'));
+		  }).mouseup(function(e) {
+	   	     ws.send("stop");
+		  }).mouseleave(function(e) {
+	   	     ws.send("stop");
+		  });		  
+		  
+		  $("#keyboard").keydown(function(e) {
+		      if (e.keyCode == 37) {
+			      ws.send("left");
+			  } else if (e.keyCode == 38) {
+			      ws.send("forward");
+			  } else if (e.keyCode == 39) {
+			      ws.send("right");
+			  } else if (e.keyCode == 40) {
+			      ws.send("backward");
+			  } else { 
+			      ws.send("stop");
+			  } 
+		  }).keyup(function() {
+		      ws.send("stop");
+		  });
+      });
+	  
+	  function startWebsocket() {
+          ws = new WebSocket("ws://"+location.hostname+"/ws");
+          ws.onmessage = function(evt) { 
+              console.log("received:", evt.data);
+          };
+		  
+          ws.onclose = function(evt) { 
+            console.log("Connection was closed. Reconnecting...");
+            setTimeout(startWebsocket, 3000);			
+          };
+		  
+          ws.onopen = function(evt) { console.log('opening websocket') };	  
+	  }
+    </script>
+  </head>
+  <body>
+    <h1>RpiRover</h1>
+	<table>
+	  <tr>
+	    <td>
+	      <iframe id="videocapture" width="960" height="544"></iframe>
+		</td>
+		<td>
+		
+	<table>
+	  <tr>
+	    <td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="forward">&uarr;</button></td>  <td></td>
+	  </tr>
+	  <tr>
+	    <td><button class="cmd" style="width:100px; height:100px;" data-cmd="left">&larr;</button></td>
+		<td><button class="cmd" style="width:100px; height:100px;" data-cmd="stop">Stop</button></td>
+		<td><button class="cmd" style="width:100px; height:100px;" data-cmd="right">&rarr;</button></td>
+	  </tr>
+	  <tr>
+	      <td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="backward">&darr;</button></td>  <td></td>
+	  </tr>
+	  <tr>
+	    <td colspan="3">
+		  <label for="target">Keyboard control:</label>
+          <input id="keyboard" type="text">
+		</td>
+	  <tr/>
+	</table>		
+		
+		</td>
+	  </tr>
+	</table>
+	<br/>
+  </body>
+</html>

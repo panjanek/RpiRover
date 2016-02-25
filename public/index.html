@@ -2,11 +2,12 @@
   <head>
     <title>RpiRover</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="/jquery-1.8.3-min.js"></script>
 	<script>
 	  var ws;
       $(function(){
-          $("#videocapture").attr("src", "http://"+location.hostname+":8081/")
+          $("#videocapture").attr("src", "http://"+location.hostname+":8081/");
+		  setInterval(checkDistance, 1000);
 		  startWebsocket();
 		  $(".cmd").mousedown(function(e) {
 			  ws.send($(this).attr('data-cmd'));
@@ -15,6 +16,11 @@
 		  }).mouseleave(function(e) {
 	   	     ws.send("stop");
 		  });		  
+		  
+		  $('#servo').on('change', function() { 
+		      $("#servoAngle").text($(this).val());
+		      ws.send("servo "+$(this).val());
+          });
 		  
 		  $("#keyboard").keydown(function(e) {
 		      if (e.keyCode == 37) {
@@ -37,6 +43,7 @@
           ws = new WebSocket("ws://"+location.hostname+"/ws");
           ws.onmessage = function(evt) { 
               console.log("received:", evt.data);
+			  $("#distance").text(evt.data);
           };
 		  
           ws.onclose = function(evt) { 
@@ -45,6 +52,12 @@
           };
 		  
           ws.onopen = function(evt) { console.log('opening websocket') };	  
+	  }
+	  
+	  function checkDistance() {
+	      if ($("#showDistance").prop('checked')) {
+		      ws.send("distance");
+		  }
 	  }
     </script>
   </head>
@@ -75,7 +88,22 @@
           <input id="keyboard" type="text">
 		</td>
 	  <tr/>
-	</table>		
+	  <tr>
+	    <td colspan="3">
+		  <label for="showDistance">Distance</label>
+          <input id="showDistance" name="showDistance" type="checkbox"/>
+		  <span id="distance"></span>
+		</td>
+	  <tr/>
+	  <tr>
+		<td colspan="2">
+		    <input id="servo" type="range" min="-45" max="45" step="1" style="width:200px;"/>
+		</td>	  
+		<td>
+		    <span id="servoAngle"></span>
+		</td>
+	  </tr>
+	  </table>		
 		
 		</td>
 	  </tr>

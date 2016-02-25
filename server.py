@@ -3,6 +3,8 @@ import tornado.websocket
 import tornado.ioloop
 import tornado.web
 import wiringpi2
+import serial
+import time
 
 gpio_enableMotors = 19
 gpio_leftPwm = 6
@@ -11,10 +13,16 @@ gpio_left2 = 12
 gpio_rightPwm = 20
 gpio_right1 = 16
 gpio_right2 = 26
+serialport = '/dev/ttyUSB0'
+ser = None
 
 class WebHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("public/index.html")
+
+class JsHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("public/jquery-1.8.3-min.js")
 
 class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
@@ -32,6 +40,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             forward()
         elif message == "backward":
             backward()
+        elif message == "distance":
+            serialCommand("D;")
+            time.sleep(0.05)
+            out = ''
+            if ser is not None:
+                while ser.inWaiting() > 0:
+                    out += ser.read(1)
+            self.write_message(out)				
+        else:
+            split =  message.split(' ');
+            if split[0] == 'servo':
+                angle = split[1]
+                cmd = "S" + angle + ";"
+                serialCommand(cmd)
 
     def on_close(self):
         print 'Connection was closed...'
@@ -78,8 +100,29 @@ def right():
 	
 application = tornado.web.Application([
     (r'/ws', WSHandler),
-    (r'/', WebHandler)
+    (r'/', WebHandler),
+	(r'/jquery-1.8.3-min.js', JsHandler)
 ])
+
+def serialCommand(cmd):
+    global ser
+    if ser is None:
+        try:
+            ser = serial.Serial(port=serialport,baudrate=9600, timeout=1)
+        except:
+            ser = None
+            print "Error opening serial port"
+    try:
+        ser.write(cmd)
+    except:
+        print "Error sending data to serial port"	
+        try:
+            ser.close()
+        except:
+            print "Error closing port"
+        ser = None
+              				
+		
 
 if __name__ == "__main__":
     wiringpi2.wiringPiSetupGpio()  # BCM numeration

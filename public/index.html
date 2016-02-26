@@ -22,6 +22,14 @@
 		      ws.send("servo "+$(this).val());
           });
 		  
+		  $('#lights').change(function() {
+		     ws.send("lights" + ($(this).is(":checked") ? "on" : "off"));
+		  });	
+
+		  $(".controlcmd").click(function(e) {
+			  ws.send($(this).attr('data-cmd'));
+		  })		  
+		  
 		  $("#keyboard").keydown(function(e) {
 		      if (e.keyCode == 37) {
 			      ws.send("left");
@@ -70,42 +78,54 @@
 		</td>
 		<td>
 		
-	<table>
-	  <tr>
-	    <td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="forward">&uarr;</button></td>  <td></td>
+			<table>
+			  <tr>
+				<td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="forward">&uarr;</button></td>  <td></td>
+			  </tr>
+			  <tr>
+				<td><button class="cmd" style="width:100px; height:100px;" data-cmd="left">&larr;</button></td>
+				<td><button class="cmd" style="width:100px; height:100px;" data-cmd="stop">&#9632;</button></td>
+				<td><button class="cmd" style="width:100px; height:100px;" data-cmd="right">&rarr;</button></td>
+			  </tr>
+			  <tr>
+				  <td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="backward">&darr;</button></td>  <td></td>
+			  </tr>
+			  <tr>
+				<td colspan="3">
+				  <label for="target">Keyboard control:</label>
+				  <input id="keyboard" type="text">
+				</td>
+			  <tr/>
+			  <tr>
+				<td colspan="3">
+				  <input id="showDistance" name="showDistance" type="checkbox"/>
+				  <label for="showDistance">Distance</label>
+				  <span id="distance"></span>[cm]
+				</td>
+			  <tr/>
+			  <tr>
+				<td colspan="2">
+					<input id="servo" type="range" min="-45" max="45" step="1" style="width:200px;"/>
+				</td>	  
+				<td>
+					<span id="servoAngle"></span>&deg;
+				</td>
+			  </tr>
+			  <tr>
+				<td colspan="3">
+				  <input id="lights" name="lights" type="checkbox"/>
+				  <label for="lights">Lights</label>
+				</td>
+			  <tr/>	  
+			</table>	
+			
+		</td>
 	  </tr>
 	  <tr>
-	    <td><button class="cmd" style="width:100px; height:100px;" data-cmd="left">&larr;</button></td>
-		<td><button class="cmd" style="width:100px; height:100px;" data-cmd="stop">Stop</button></td>
-		<td><button class="cmd" style="width:100px; height:100px;" data-cmd="right">&rarr;</button></td>
-	  </tr>
-	  <tr>
-	      <td></td>  <td><button class="cmd" style="width:100px; height:100px;" data-cmd="backward">&darr;</button></td>  <td></td>
-	  </tr>
-	  <tr>
-	    <td colspan="3">
-		  <label for="target">Keyboard control:</label>
-          <input id="keyboard" type="text">
-		</td>
-	  <tr/>
-	  <tr>
-	    <td colspan="3">
-		  <label for="showDistance">Distance</label>
-          <input id="showDistance" name="showDistance" type="checkbox"/>
-		  <span id="distance"></span>
-		</td>
-	  <tr/>
-	  <tr>
-		<td colspan="2">
-		    <input id="servo" type="range" min="-45" max="45" step="1" style="width:200px;"/>
-		</td>	  
-		<td>
-		    <span id="servoAngle"></span>
-		</td>
-	  </tr>
-	  </table>		
-		
-		</td>
+	      <td colspan="2">
+		      <button id="reboot" class="controlcmd" data-cmd="reboot">Reboot</button>
+			  <button id="shutdown" class="controlcmd" data-cmd="shutdown">Shutdown</button>
+		  </td>
 	  </tr>
 	</table>
 	<br/>

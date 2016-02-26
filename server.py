@@ -5,6 +5,7 @@ import tornado.web
 import wiringpi2
 import serial
 import time
+import os
 
 gpio_enableMotors = 19
 gpio_leftPwm = 6
@@ -13,6 +14,7 @@ gpio_left2 = 12
 gpio_rightPwm = 20
 gpio_right1 = 16
 gpio_right2 = 26
+gpio_lights = 23
 serialport = '/dev/ttyUSB0'
 ser = None
 
@@ -40,6 +42,16 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             forward()
         elif message == "backward":
             backward()
+        elif message == "lightson":
+            wiringpi2.digitalWrite(gpio_lights, 1)
+        elif message == "lightsoff":
+            wiringpi2.digitalWrite(gpio_lights, 0)
+        elif message == "reboot":
+            stop() 		
+            os.system("reboot")
+        elif message == "shutdown":
+            stop()		
+            os.system("shutdown -h -H now")			
         elif message == "distance":
             serialCommand("D;")
             time.sleep(0.05)
@@ -121,7 +133,6 @@ def serialCommand(cmd):
         except:
             print "Error closing port"
         ser = None
-              				
 		
 
 if __name__ == "__main__":
@@ -134,6 +145,7 @@ if __name__ == "__main__":
     wiringpi2.pinMode(gpio_rightPwm, 1)
     wiringpi2.pinMode(gpio_right1, 1)
     wiringpi2.pinMode(gpio_right2, 1)
+    wiringpi2.pinMode(gpio_lights, 1)
     stop();
     #enabling motor controller
     wiringpi2.digitalWrite(gpio_enableMotors, 1)

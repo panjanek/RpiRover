@@ -18,13 +18,14 @@ gpio_lights = 23
 serialport = '/dev/ttyUSB0'
 ser = None
 
-class WebHandler(tornado.web.RequestHandler):
+class WebStaticFileHandler(tornado.web.StaticFileHandler):
+    def set_extra_headers(self, path):
+        # Disable cache
+        self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+
+class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("public/index.html")
-
-class JsHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.render("public/jquery-1.8.3-min.js")
 
 class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
@@ -112,8 +113,9 @@ def right():
 	
 application = tornado.web.Application([
     (r'/ws', WSHandler),
-    (r'/', WebHandler),
-	(r'/jquery-1.8.3-min.js', JsHandler)
+	(r'/', MainHandler),
+	(r'/tmp/(.*)', WebStaticFileHandler, {"path": "/tmp"}),
+	(r'/(.*)', WebStaticFileHandler, {"path": "/home/pi/RpiRover/public"})
 ])
 
 def serialCommand(cmd):

@@ -49,10 +49,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             wiringpi2.digitalWrite(gpio_lights, 0)
         elif message == "reboot":
             stop() 		
-            os.system("reboot")
+            os.system("/sbin/reboot")
         elif message == "shutdown":
             stop()		
-            os.system("shutdown -h -H now")			
+            os.system("/sbin/shutdown -h -H now")			
         elif message == "distance":
             serialCommand("D;")
             time.sleep(0.05)

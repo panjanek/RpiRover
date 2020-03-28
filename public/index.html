@@ -15,7 +15,13 @@
 	   	     ws.send("stop");
 		  }).mouseleave(function(e) {
 	   	     ws.send("stop");
-		  });		  
+		  });
+
+          $("#say").mousedown(function(e) {
+              var text = $("#speech").val();
+			  ws.send("say "+text);
+              $("#speech").val("");
+		  })		  
 		  
 		  $('#servo').on('change', function() { 
 		      $("#servoAngle").text($(this).val());
@@ -48,7 +54,7 @@
       });
 	  
 	  function startWebsocket() {
-          ws = new WebSocket("ws://"+location.hostname+"/ws");
+          ws = new WebSocket("ws://"+location.hostname+":"+location.port+"/ws");
           ws.onmessage = function(evt) { 
               console.log("received:", evt.data);
 			  $("#distance").text(evt.data);
@@ -117,6 +123,13 @@
 				  <label for="lights">Lights</label>
 				</td>
 			  <tr/>	  
+               <tr>
+				<td colspan="3">
+				  <label for="speech">Speech:</label>
+				  <input id="speech" type="text">
+                  <button id="say">Say</button>
+				</td>
+			  <tr/> 
 			</table>	
 			
 		</td>

@@ -46,7 +46,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif message == "lightson":
             wiringpi2.digitalWrite(gpio_lights, 1)
         elif message == "lightsoff":
-            wiringpi2.digitalWrite(gpio_lights, 0)
+            wiringpi2.digitalWrite(gpio_lights, 0)            
         elif message == "reboot":
             stop() 		
             os.system("/sbin/reboot")
@@ -67,6 +67,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 angle = split[1]
                 cmd = "S" + angle + ";"
                 serialCommand(cmd)
+            if split[0] == 'say':
+                text = message[3:]
+                print 'Text to say:', text
+                os.system("/home/pi/gspeak.sh "+text)
+                
 
     def on_close(self):
         print 'Connection was closed...'
